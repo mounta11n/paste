@@ -1,5 +1,5 @@
 # GigaPaste
-GigaPaste is the most sophisticated file sharing, url shortener and pastebin all in a single place.
+File sharing, url shortener and pastebin all in one place.
 
 # Why it's better than other similar apps :zap:
 - works in mobile browsers, can upload file / text with ctrl+v, drag and drop, browse file or through terminal
