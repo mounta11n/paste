@@ -15,7 +15,7 @@ File sharing, url shortener and pastebin all in one place.
 - Short & unambiguous URL generation (with letters like ilI1 omitted) with collision detection
 - Easy to understand code
 
-# Dont like how it looks?
+# Dont like how it looks? 🎨
 pick a .css file from [here](https://github.com/dbohdan/classless-css) and replace the `static/theme.css`
 
 # How to build with docker :whale2:
