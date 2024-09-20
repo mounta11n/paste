@@ -1,5 +1,6 @@
 # GigaPaste
 File sharing, url shortener and pastebin all in one place.
+![image](https://github.com/user-attachments/assets/d75999e5-736a-4ef4-80e8-c9a77079ed45)
 
 # Why it's better than other similar apps :zap:
 - works in mobile browsers, can upload file / text with ctrl+v, drag and drop, browse file or through terminal
@@ -12,6 +13,9 @@ File sharing, url shortener and pastebin all in one place.
 - Decryption is done on the fly, the encrypted data is never decrypted to the disk
 - Short & unambiguous URL generation (with letters like ilI1 omitted) with collision detection
 - Easy to understand code
+
+# Dont like how it looks?
+pick a .css file from [here](https://github.com/dbohdan/classless-css?tab=readme-ov-file#chota) and replace the `static/theme.css`
 
 # How to build with docker :whale2:
 1. Download / clone this repo
