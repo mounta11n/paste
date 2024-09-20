@@ -13,7 +13,7 @@ File sharing, url shortener and pastebin all in one place.
 - Encryption done right, all your data can be secured with AES & pbkdf2 for passwords
 - Decryption is done on the fly, the encrypted data is never decrypted to the disk
 - Short & unambiguous URL generation (with letters like ilI1 omitted) with collision detection
-- Easy to understand code
+- QR code support to quickly share files to / between mobile devices
 
 # Dont like how it looks? 🎨
 pick a .css file from [here](https://github.com/dbohdan/classless-css) and replace the `static/theme.css`
