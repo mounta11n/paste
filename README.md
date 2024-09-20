@@ -33,6 +33,10 @@ You can modify the variables inside `data/settings.json`
 
 You can modify CPU/memory usage with `streamSizeLimitKB * (1000/streamThrottleMS)`, the default setting can handle 40 MB of data on file upload, download, encryption & decryption / second, you can tune this down if needed
 
+# Curl Upload
+`curl -F "file=@main.go" -F "duration=10" -F "pass=123" -F "burn=true" yoursite.com`
+Note that the duration, password, and burn is totally optional, you can just write `curl -F "file=@file.txt" yoursite.com` for quick upload
+
 # Security
 For maximum security, it is recommended to encrypt your file before uploading
 
