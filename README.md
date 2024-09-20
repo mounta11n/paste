@@ -1,5 +1,6 @@
 # GigaPaste
 File sharing, url shortener and pastebin all in one place.
+
 ![image](https://github.com/user-attachments/assets/d75999e5-736a-4ef4-80e8-c9a77079ed45)
 
 # Why it's better than other similar apps :zap:
