@@ -21,7 +21,7 @@ pick a .css file from [here](https://github.com/dbohdan/classless-css) and repla
 # How to build with docker :whale2:
 1. Download / clone this repo
 2. Run `docker compose up`  
-If you don't want to use docker compose, you need to make a volume for `uploads` and `data` folder (see the docker compose for reference)
+Make sure to make an `uploads` folder to store uploaded files
 
 # How to build without docker 📟
 1. Download / clone this repo
