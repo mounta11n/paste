@@ -16,7 +16,7 @@ File sharing, url shortener and pastebin all in one place.
 - QR code support to quickly share files to / between mobile devices
 
 # URL shortener 🔗
-simply paste any valid link (must start with `http://` or `https://`) to the textbox and upload
+simply paste any valid url (must start with `http://` or `https://`) to the textbox and upload
 
 # Dont like how it looks? 🎨
 pick a .css file from [here](https://github.com/dbohdan/classless-css) and replace the `static/theme.css`
