@@ -123,15 +123,6 @@ window.onload = ()=>{
 		}
 	});
 
-
-	/*if(document.getElementsByTagName("html")[0].style.backgroundColor == '' && document && document.getElementsByTagName("body")[0].style.backgroundColor == ''){
-		
-		//dont' make it transparent
-		progressPage.style.backgroundColor = "rgba(255,255,255,255)"
-
-	}
-	*/
-
 	textArea.focus()
 
 }
