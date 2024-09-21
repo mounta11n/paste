@@ -22,7 +22,7 @@ File sharing, url shortener and pastebin all in one place.
 simply paste any valid url (must start with `http://` or `https://`) to the textbox and upload
 
 # Dont like how it looks? 🎨
-pick a .css file from [here](https://github.com/dbohdan/classless-css) and replace the `static/theme.css`
+pick a .css file from [here](https://github.com/dbohdan/classless-css) and replace the `static/theme.css`, or search for "classless css"
 
 # How to build with docker :whale2:
 1. Download / clone this repo
