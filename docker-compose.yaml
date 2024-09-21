@@ -1,9 +1,8 @@
 services:
-  ultrapaste:
+  gigapaste:
     build: .
     ports:
       - "80:80"
     volumes:
       - ./data:/app/data
       - ./uploads:/app/uploads
-    network_mode: bridge
