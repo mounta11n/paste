@@ -217,7 +217,7 @@ function upload() {
 		});
 
 		let minutes = duration.value * convertMinutes[durationModifiers.value]
-		console.log(minutes)
+
 		if(files){
 		
 			const formData = new FormData();
