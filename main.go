@@ -11,19 +11,17 @@ You should have received a copy of the GNU General Public License along with Gig
 package main
 
 import (
-	
-	"os"
 	"embed"
 	"fmt"
 	"log"
 	"mime"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"os/signal"
-    "syscall"
-
+	"syscall"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -34,37 +32,36 @@ var staticFiles embed.FS
 var settingsFile string
 
 
-//theoretically won't ever conflict with generated url, because generated url won't contain dot "."
+// Theoretically won't ever conflict with generated URL, because generated URL won't contain a dot "."
 func serveFile(w http.ResponseWriter, r *http.Request, next func(w2 http.ResponseWriter, r2 *http.Request)) {
-
-    // Remove leading slash from the URL path
-    path := strings.TrimPrefix(r.URL.Path, "/")
+	// Remove leading slash from the URL path
+	path := strings.TrimPrefix(r.URL.Path, "/")
 
 	if path == "" {
-        http.Redirect(w, r, "/index.html", http.StatusFound)
-        return
-    }
+		http.Redirect(w, r, "/index.html", http.StatusFound)
+		return
+	}
 
-    // Open the file from the embedded file system
-    file, err := staticFiles.ReadFile("static/" + path)
-    if err != nil {
-		//if GET url is not found in static files, then we pass the request to the next handler (file download handler)
+	// Open the file from the embedded file system
+	file, err := staticFiles.ReadFile("static/" + path)
+	if err != nil {
+		// If GET URL is not found in static files, then we pass the request to the next handler (file download handler)
 		next(w, r)
-        return
-    }
+		return
+	}
 
-    // Detect the MIME type based on file extension
-    ext := filepath.Ext(path)
-    contentType := mime.TypeByExtension(ext)
-    if contentType == "" {
-        contentType = "application/octet-stream"
-    }
+	// Detect the MIME type based on file extension
+	ext := filepath.Ext(path)
+	contentType := mime.TypeByExtension(ext)
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
 
-    // Set headers and write the file to the response
-    w.Header().Set("Content-Type", contentType)
-    w.Header().Set("Content-Length", strconv.Itoa(len(file)))
-    w.WriteHeader(http.StatusOK)
-    w.Write(file)
+	// Set headers and write the file to the response
+	w.Header().Set("Content-Type", contentType)
+	w.Header().Set("Content-Length", strconv.Itoa(len(file)))
+	w.WriteHeader(http.StatusOK)
+	w.Write(file)
 }
 
 func main() {
@@ -93,12 +90,12 @@ func main() {
 	db := initDatabase()
 	InitSettings()
 
-    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request){
-	
+	http.HandleFunc("/", gzipMiddleware(func(w http.ResponseWriter, r *http.Request) {
+
 		if r.Method == http.MethodGet {
 
-			serveFile(w, r, func(w2 http.ResponseWriter, r2 *http.Request){
-						
+			serveFile(w, r, func(w2 http.ResponseWriter, r2 *http.Request) {
+
 				DownloadHandler(w2, r2, db)
 
 			})
@@ -107,47 +104,47 @@ func main() {
 
 		if r.Method == http.MethodPost {
 
-			r.Body = http.MaxBytesReader(w, r.Body, 1024 * 1024 * Global.FileSizeLimit)
+			r.Body = http.MaxBytesReader(w, r.Body, 1024*1024*Global.FileSizeLimit)
 			FileHandler(w, r, db)
 
-			//before the multipart form is parsed, it will be written to temporary folder, make sure to clean it after we done
+			// Before the multipart form is parsed, it will be written to a temporary folder, make sure to clean it after we are done
 			if r.MultipartForm != nil {
 				err := r.MultipartForm.RemoveAll()
 				if err != nil {
-				   fmt.Println(err)
+					fmt.Println(err)
 				}
 
 			}
 
 		}
 
-	})
+	}))
 
-	http.HandleFunc("/postText", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/postText", gzipMiddleware(func(w http.ResponseWriter, r *http.Request) {
 
-		r.Body = http.MaxBytesReader(w, r.Body, 1024 * 1024 * Global.TextSizeLimit)
-        TextHandler(w, r, db)
+		r.Body = http.MaxBytesReader(w, r.Body, 1024*1024*Global.TextSizeLimit)
+		TextHandler(w, r, db)
 
-    })
+	}))
 
 	go CheckExpiration(db)
-	
-	server := &http.Server{	Addr: ":80"}
+
+	server := &http.Server{Addr: ":80"}
 	go func() {
-        sigChan := make(chan os.Signal, 1)
-        signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-        <-sigChan
-		
+		sigChan := make(chan os.Signal, 1)
+		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+		<-sigChan
+
 		fmt.Println("Shutting down")
-        if err := server.Close(); err != nil {
+		if err := server.Close(); err != nil {
 			fmt.Println(err)
-        }
+		}
 		if err := db.Close(); err != nil {
 			fmt.Println(err)
 		}
-    }()
+	}()
 
-    log.Println("Server running")
-    log.Fatal(server.ListenAndServe())
+	log.Println("Server running")
+	log.Fatal(server.ListenAndServe())
 }
 
