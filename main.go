@@ -13,9 +13,9 @@ package main
 import (
 	"embed"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"mime"
+	_ "modernc.org/sqlite"
 	"net/http"
 	"os"
 	"os/signal"
@@ -86,7 +86,7 @@ func main() {
 
 	}
 
-	db := initDatabase()
+	db := InitDatabase()
 	InitSettings()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
