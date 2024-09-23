@@ -32,8 +32,7 @@ pick a .css file from [here](https://github.com/dbohdan/classless-css) and repla
 # How to build without docker 📟
 1. Download / clone this repo
 2. Open terminal
-3. Type `export CGO_ENABLED=1` (linux) or `SET CGO_ENABLED=1` (windows)
-4. `go build .`
+3. Run `go build .`
 
 # Settings ⚙️
 You can modify the variables inside `data/settings.json`
