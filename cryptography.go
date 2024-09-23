@@ -15,14 +15,14 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
+	"golang.org/x/crypto/pbkdf2"
 	"io"
 	"os"
-	"golang.org/x/crypto/pbkdf2"
 	"time"
 )
 
 func EncryptFile(srcPath string, aesKey []byte) error {
-	
+
 	srcFile, err := os.Open(srcPath)
 	if err != nil {
 		return err
@@ -66,7 +66,7 @@ func EncryptFile(srcPath string, aesKey []byte) error {
 		}
 
 		streamWriter.Write(buffer[:n])
-		if(Global.StreamThrottle > 0){
+		if Global.StreamThrottle > 0 {
 			time.Sleep(time.Duration(Global.StreamThrottle) * time.Millisecond)
 		}
 	}
@@ -109,8 +109,6 @@ func GetDecryptInfo(srcPath string, aesKey []byte) (error, []byte, cipher.Stream
 
 }
 
-
-
 func DecryptFileStream(buffer []byte, size int, iv []byte, stream cipher.Stream) (error, []byte) {
 
 	decrypted := make([]byte, size)
@@ -130,7 +128,6 @@ func GenerateSalt() ([]byte, error) {
 	return salt, nil
 
 }
-
 
 func GeneratePasswordHash(password string, salt []byte) []byte {
 

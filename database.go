@@ -11,25 +11,23 @@ You should have received a copy of the GNU General Public License along with Gig
 package main
 
 import (
-
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
-
 )
 
 func initDatabase() *sql.DB {
 
 	db, err := sql.Open("sqlite3", "file:./data/database.db?cache=shared")
-    if err != nil {
-        fmt.Println(err)
+	if err != nil {
+		fmt.Println(err)
 		return nil
-    }
+	}
 
 	db.SetMaxOpenConns(1)
 
-    // Create a table
-    createTableSQL := `CREATE TABLE IF NOT EXISTS data (
+	// Create a table
+	createTableSQL := `CREATE TABLE IF NOT EXISTS data (
         id TEXT NOT NULL,
         type TEXT NOT NULL,
         fileName TEXT NOT NULL,
@@ -41,11 +39,11 @@ func initDatabase() *sql.DB {
 		encryptSalt TEXT NOT NULL
     );`
 
-    _, err = db.Exec(createTableSQL)
-    if err != nil {
-        fmt.Println(err)
+	_, err = db.Exec(createTableSQL)
+	if err != nil {
+		fmt.Println(err)
 		return nil
-    }	
+	}
 
 	return db
 

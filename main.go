@@ -13,16 +13,16 @@ package main
 import (
 	"embed"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"mime"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"os/signal"
 	"syscall"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 //go:embed static/*
@@ -30,7 +30,6 @@ var staticFiles embed.FS
 
 //go:embed data/settings.json
 var settingsFile string
-
 
 // Theoretically won't ever conflict with generated URL, because generated URL won't contain a dot "."
 func serveFile(w http.ResponseWriter, r *http.Request, next func(w2 http.ResponseWriter, r2 *http.Request)) {
@@ -147,4 +146,3 @@ func main() {
 	log.Println("Server running")
 	log.Fatal(server.ListenAndServe())
 }
-

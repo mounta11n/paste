@@ -11,18 +11,16 @@ You should have received a copy of the GNU General Public License along with Gig
 package main
 
 import (
-	
 	"database/sql"
 	"fmt"
 	"os"
-	"time"
 	"strconv"
-
+	"time"
 )
 
-func CheckExpiration(db *sql.DB){
+func CheckExpiration(db *sql.DB) {
 
-	for{
+	for {
 
 		tx, err := db.Begin()
 		if err != nil {
@@ -31,17 +29,15 @@ func CheckExpiration(db *sql.DB){
 
 		//Sqlite doesn't support select for update, instead when we begin transaction it locks the whole db file
 		rows, err := tx.Query("SELECT id, filePath FROM data WHERE expire <= ?", strconv.FormatInt(time.Now().Unix(), 10))
-		if err != nil{
+		if err != nil {
 			tx.Rollback()
 			fmt.Print(err)
 			return
 		}
-	
-		var toDelete = []struct {
-			
-			Id string
-			FilePath string
 
+		var toDelete = []struct {
+			Id       string
+			FilePath string
 		}{}
 
 		for rows.Next() {
@@ -60,8 +56,11 @@ func CheckExpiration(db *sql.DB){
 			//dont wanna clutter the file with type struct
 			//we cant' directly remove the rows from database because it will be locked before we call rows.Close()
 			//so we just put things we want to delete into array
-			toDelete = append(toDelete, struct{Id string; FilePath string}{Id: id, FilePath: filePath})
-		
+			toDelete = append(toDelete, struct {
+				Id       string
+				FilePath string
+			}{Id: id, FilePath: filePath})
+
 		}
 
 		rows.Close()
@@ -79,17 +78,16 @@ func CheckExpiration(db *sql.DB){
 			if err != nil {
 				fmt.Println(err)
 			}
-	
+
 		}
 
 		if err := tx.Commit(); err != nil {
 			fmt.Println(err)
-			return;
-	    }
+			return
+		}
 
 		time.Sleep(10 * time.Second)
-		
-		
+
 	}
 
 }

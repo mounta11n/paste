@@ -11,12 +11,10 @@ You should have received a copy of the GNU General Public License along with Gig
 package main
 
 import (
-	
 	"compress/gzip"
-	"net/http"
 	"io"
+	"net/http"
 	"strings"
-
 )
 
 func gzipMiddleware(next http.HandlerFunc) http.HandlerFunc {

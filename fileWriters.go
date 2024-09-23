@@ -11,25 +11,23 @@ You should have received a copy of the GNU General Public License along with Gig
 package main
 
 import (
-	
+	"archive/zip"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"os"
 	"time"
-	"mime/multipart"
-	"archive/zip"
-	"io"
-
 )
 
-func MultipleFileWriter(files []*multipart.FileHeader, path string, aesKey []byte, callback func()){
-	
+func MultipleFileWriter(files []*multipart.FileHeader, path string, aesKey []byte, callback func()) {
+
 	outFile, err := os.Create(path)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	defer outFile.Close()
-	
+
 	//make new zip file
 	zipWriter := zip.NewWriter(outFile)
 	defer zipWriter.Close()
@@ -70,7 +68,7 @@ func MultipleFileWriter(files []*multipart.FileHeader, path string, aesKey []byt
 			}
 
 			//need to add check for > 0 because Sleep(0) will just trigger context switch
-			if(Global.StreamThrottle > 0){
+			if Global.StreamThrottle > 0 {
 				time.Sleep(time.Duration(Global.StreamThrottle) * time.Millisecond)
 			}
 
@@ -88,15 +86,15 @@ func MultipleFileWriter(files []*multipart.FileHeader, path string, aesKey []byt
 			fmt.Println(err)
 		}
 
-	}	
+	}
 
 	callback()
 
 }
 
-func SingleFileWriter(files []*multipart.FileHeader, path string, aesKey []byte, callback func()){
+func SingleFileWriter(files []*multipart.FileHeader, path string, aesKey []byte, callback func()) {
 
-	outFile, err := os.Create(path) 
+	outFile, err := os.Create(path)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -131,7 +129,7 @@ func SingleFileWriter(files []*multipart.FileHeader, path string, aesKey []byte,
 		}
 
 		//need to add check for > 0 because Sleep(0) will just trigger context switch
-		if(Global.StreamThrottle > 0){
+		if Global.StreamThrottle > 0 {
 			time.Sleep(time.Duration(Global.StreamThrottle) * time.Millisecond)
 		}
 

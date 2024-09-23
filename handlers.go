@@ -11,23 +11,21 @@ You should have received a copy of the GNU General Public License along with Gig
 package main
 
 import (
-
-	"io/fs"
+	"bytes"
+	"crypto/cipher"
 	"database/sql"
+	"embed"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
+	"io/fs"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"time"
-	"net/url"
-	"bytes"
-	"encoding/hex"
-	"crypto/cipher"
-	"embed"
-
 )
 
 //go:embed templates/*
@@ -47,41 +45,43 @@ func FileHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	var burnStr string
 
 	//we do these checks for curl support
-	if(len(r.MultipartForm.Value["duration"]) > 0){
+	if len(r.MultipartForm.Value["duration"]) > 0 {
 		duration = r.MultipartForm.Value["duration"][0]
-	}else{
+	} else {
 		duration = strconv.FormatInt(Global.CmdUploadDefaultDurationMinute, 10)
 	}
-	if(len(r.MultipartForm.Value["pass"]) > 0){
+	if len(r.MultipartForm.Value["pass"]) > 0 {
 		password = r.MultipartForm.Value["pass"][0]
-	}else{
+	} else {
 		password = ""
 	}
-	if(len(r.MultipartForm.Value["burn"]) > 0){
+	if len(r.MultipartForm.Value["burn"]) > 0 {
 		burnStr = r.MultipartForm.Value["burn"][0]
-	}else{
+	} else {
 		burnStr = ""
 	}
 
-	if burnStr == "" {burnStr = "false"}
+	if burnStr == "" {
+		burnStr = "false"
+	}
 	burn, err := strconv.ParseBool(burnStr)
-	if err != nil{
+	if err != nil {
 		fmt.Println(err)
 	}
 
 	minutes, err := strconv.ParseInt(duration, 10, 64)
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	seconds := minutes*60
+	seconds := minutes * 60
 
 	//if anyone manipulates the number to weird value
 	if seconds <= 0 {
 		return
 	}
-	
+
 	//if over 200 years just set it to 200
 	if seconds > 6311520000 {
 		seconds = 6311520000
@@ -96,8 +96,8 @@ func FileHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	passwordHash := ""
 	passwordSalt := ""
-	var encryptKey []byte = nil;
-	encryptSalt := "";
+	var encryptKey []byte = nil
+	encryptSalt := ""
 
 	if password != "" {
 
@@ -123,17 +123,17 @@ func FileHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	//create unique file name + some random string as a protection in case there are 2 file uploads at the exact same time
 	if len(files) == 1 {
-		
+
 		filePath := GenRandFileName("./uploads/", "")
-		SingleFileWriter(files, filePath, encryptKey, func(){
+		SingleFileWriter(files, filePath, encryptKey, func() {
 			randUrl := GenRandPath(6, db)
-			_, err = db.Exec("INSERT INTO data (id, type, fileName, filePath, burn, expire, passwordHash, passwordSalt, encryptSalt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", randUrl, "file", files[0].Filename, filePath, burn, strconv.FormatInt(time.Now().Unix() + seconds, 10), passwordHash, passwordSalt, encryptSalt)
-			if err != nil{
+			_, err = db.Exec("INSERT INTO data (id, type, fileName, filePath, burn, expire, passwordHash, passwordSalt, encryptSalt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", randUrl, "file", files[0].Filename, filePath, burn, strconv.FormatInt(time.Now().Unix()+seconds, 10), passwordHash, passwordSalt, encryptSalt)
+			if err != nil {
 				fmt.Println(err)
 				return
 			}
 
-			_, err = io.WriteString(w, r.Host + "/" + randUrl)
+			_, err = io.WriteString(w, r.Host+"/"+randUrl)
 			if err != nil {
 				fmt.Println(err)
 				return
@@ -144,17 +144,17 @@ func FileHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	if len(files) >= 2 {
-		
+
 		filePath := GenRandFileName("./uploads/", ".zip")
-		MultipleFileWriter(files, filePath, encryptKey, func(){
+		MultipleFileWriter(files, filePath, encryptKey, func() {
 			randUrl := GenRandPath(6, db)
-			_, err = db.Exec("INSERT INTO data (id, type, fileName, filePath, burn, expire, passwordHash, passwordSalt, encryptSalt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", randUrl, "file", "files.zip", filePath, burn, strconv.FormatInt(time.Now().Unix() + seconds, 10), passwordHash, passwordSalt, encryptSalt)
-			if err != nil{
+			_, err = db.Exec("INSERT INTO data (id, type, fileName, filePath, burn, expire, passwordHash, passwordSalt, encryptSalt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", randUrl, "file", "files.zip", filePath, burn, strconv.FormatInt(time.Now().Unix()+seconds, 10), passwordHash, passwordSalt, encryptSalt)
+			if err != nil {
 				fmt.Println(err)
 				return
 			}
 
-			_, err = io.WriteString(w, r.Host + "/" + randUrl)
+			_, err = io.WriteString(w, r.Host+"/"+randUrl)
 			if err != nil {
 				fmt.Println(err)
 				return
@@ -166,48 +166,45 @@ func FileHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 }
 
-
 func TextHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
-	var jsonData struct{
-	
-		Duration int64 `json:"duration"`
-		Text string `json:"text"`
+	var jsonData struct {
+		Duration int64  `json:"duration"`
+		Text     string `json:"text"`
 		Password string `json:"pass"`
-		Burn bool `json:"burn"`
-
+		Burn     bool   `json:"burn"`
 	}
 
-    decoder := json.NewDecoder(r.Body)
-    err := decoder.Decode(&jsonData)
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&jsonData)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	seconds := jsonData.Duration * 60
 
 	if seconds <= 0 {
 		return
 	}
-	
+
 	//if over 200 years just set it to 200
 	if seconds > 6311520000 {
 		seconds = 6311520000
 	}
 
 	filePath := GenRandFileName("./uploads/", "")
-    file, err := os.Create(filePath)
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
-    defer file.Close()
+	file, err := os.Create(filePath)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer file.Close()
 
 	password := jsonData.Password
 	passwordHash := ""
 	passwordSalt := ""
-	var encryptKey []byte = nil;
+	var encryptKey []byte = nil
 	encryptSalt := ""
 	if password != "" {
 
@@ -229,24 +226,23 @@ func TextHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		encryptSalt = hex.EncodeToString(salt2)
 		encryptKey = GeneratePasswordHash(password, salt2)
 
-
 	}
 
-    _, err = file.Write([]byte(jsonData.Text))
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
-	
-	file.Close()
-
-	randUrl := GenRandPath(6, db)
-	_, err = db.Exec("INSERT INTO data (id, type, fileName, filePath, burn, expire, passwordHash, passwordSalt, encryptSalt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", randUrl, "text", "", filePath, jsonData.Burn, strconv.FormatInt(time.Now().Unix() + seconds, 10), passwordHash, passwordSalt, encryptSalt)
-	if err != nil{
+	_, err = file.Write([]byte(jsonData.Text))
+	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	
+
+	file.Close()
+
+	randUrl := GenRandPath(6, db)
+	_, err = db.Exec("INSERT INTO data (id, type, fileName, filePath, burn, expire, passwordHash, passwordSalt, encryptSalt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", randUrl, "text", "", filePath, jsonData.Burn, strconv.FormatInt(time.Now().Unix()+seconds, 10), passwordHash, passwordSalt, encryptSalt)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	if passwordHash != "" {
 
 		err = EncryptFile(filePath, encryptKey)
@@ -257,7 +253,7 @@ func TextHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	}
 
-	_, err = io.WriteString(w, r.Host + "/" + randUrl)
+	_, err = io.WriteString(w, r.Host+"/"+randUrl)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -282,7 +278,7 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 	err := db.QueryRow("SELECT type, fileName, filePath, burn, passwordHash, passwordSalt, encryptSalt FROM data WHERE id = ?", path).Scan(&fType, &fFileName, &fFilePath, &fBurn, &fPasswordHash, &fPasswordSalt, &fEncryptSalt)
 	if err != nil {
-		
+
 		//path not found
 		data, err := fs.ReadFile(templateFiles, "templates/notFound.html")
 		if err != nil {
@@ -295,33 +291,33 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		w.Write(data)
 		return
 	}
-	
+
 	//doesn't exist
-	if fType == ""	{
+	if fType == "" {
 		return
 	}
-	
+
 	//if link is password protected and no password is given
 	if fPasswordHash != "" && decryptKey == "" {
-		
+
 		tmpl, err := template.ParseFS(templateFiles, "templates/authTemplate.html")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		err = tmpl.Execute(w, struct {Path string}{Path: path})
+		err = tmpl.Execute(w, struct{ Path string }{Path: path})
 
-		if err != nil{
+		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		return;
+		return
 
 	}
 
-	var decryptFileHash []byte;
+	var decryptFileHash []byte
 	if fPasswordHash != "" {
 
 		passwordSalt, err := hex.DecodeString(fPasswordSalt)
@@ -355,7 +351,7 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		encryptSalt, err := hex.DecodeString(fEncryptSalt)
 		if err != nil {
 			fmt.Println(err)
-			return;
+			return
 		}
 
 		decryptFileHash = GeneratePasswordHash(decryptKey, encryptSalt)
@@ -380,15 +376,15 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 		var (
 			iv        []byte
-			aesCTR cipher.Stream
+			aesCTR    cipher.Stream
 			nonceSize int
 		)
 
 		if fPasswordHash != "" {
-			
+
 			err, iv, aesCTR, nonceSize = GetDecryptInfo(fFilePath, decryptFileHash)
 			if err != nil {
-				
+
 				fmt.Println(err)
 
 			}
@@ -399,11 +395,11 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		w.Header().Set("Content-Disposition", "attachment; filename="+fFileName)
 		w.Header().Set("Content-Type", "application/octet-stream")
 		if fPasswordHash != "" {
-			w.Header().Set("Content-Length", strconv.FormatInt(fileInfo.Size() - int64(nonceSize), 10))
-		}else{
+			w.Header().Set("Content-Length", strconv.FormatInt(fileInfo.Size()-int64(nonceSize), 10))
+		} else {
 			w.Header().Set("Content-Length", strconv.FormatInt(fileInfo.Size(), 10))
-		}	
-		
+		}
+
 		buffer := make([]byte, 1024*Global.StreamSizeLimit)
 
 		//skip the IV
@@ -422,7 +418,7 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 			if n == 0 {
 
 				if fBurn == "1" {
-					
+
 					file.Close()
 					_, err = db.Exec("DELETE FROM data WHERE id = ?", path)
 					if err != nil {
@@ -448,14 +444,14 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 					fmt.Println(err)
 					return
 				}
-				
+
 				if _, err := w.Write(decrypted); err != nil {
 					fmt.Println(err)
 					return
 				}
 
-			}else{
-				
+			} else {
+
 				if _, err := w.Write(buffer[:n]); err != nil {
 					fmt.Println(err)
 					return
@@ -469,7 +465,7 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 			}
 
 			//need to add check for > 0 because Sleep(0) will just trigger context switch
-			if(Global.StreamThrottle > 0){
+			if Global.StreamThrottle > 0 {
 				time.Sleep(time.Duration(Global.StreamThrottle) * time.Millisecond)
 			}
 
@@ -493,13 +489,13 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 			return
 		}
 
-		var text string;
+		var text string
 
 		if fPasswordHash != "" {
-			
+
 			err, iv, aesCTR, nonceSize := GetDecryptInfo(fFilePath, decryptFileHash)
 			if err != nil {
-				
+
 				fmt.Println(err)
 
 			}
@@ -512,8 +508,8 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 			text = string(decrypted)
 
-		}else{
-			
+		} else {
+
 			text = string(content)
 
 		}
@@ -525,7 +521,7 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 			http.Redirect(w, r, text, http.StatusSeeOther)
 
-		}else{	
+		} else {
 
 			tmpl, err := template.ParseFS(templateFiles, "templates/pasteTemplate.html")
 			if err != nil {
@@ -533,16 +529,18 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 				return
 			}
 
-			if (raw == "1"){
+			if raw == "1" {
 
 				w.Header().Set("Content-Type", "text/plain")
 				w.Write([]byte(text))
 
+			} else {
 
-			}else{
-
-				err = tmpl.Execute(w, struct {Text string; Burn string}{Text: text, Burn: fBurn})
-				if err != nil{
+				err = tmpl.Execute(w, struct {
+					Text string
+					Burn string
+				}{Text: text, Burn: fBurn})
+				if err != nil {
 					fmt.Println(err)
 					return
 				}
@@ -552,7 +550,7 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		}
 
 		if fBurn == "1" {
-			
+
 			file.Close()
 			_, err = db.Exec("DELETE FROM data WHERE id = ?", path)
 			if err != nil {
@@ -567,7 +565,7 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 			}
 
 		}
-	
+
 	}
 
 }
