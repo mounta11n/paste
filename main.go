@@ -89,7 +89,7 @@ func main() {
 	db := initDatabase()
 	InitSettings()
 
-	http.HandleFunc("/", gzipMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
 		if r.Method == http.MethodGet {
 
@@ -117,14 +117,14 @@ func main() {
 
 		}
 
-	}))
+	})
 
-	http.HandleFunc("/postText", gzipMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/postText", func(w http.ResponseWriter, r *http.Request) {
 
 		r.Body = http.MaxBytesReader(w, r.Body, 1024*1024*Global.TextSizeLimit)
 		TextHandler(w, r, db)
 
-	}))
+	})
 
 	go CheckExpiration(db)
 

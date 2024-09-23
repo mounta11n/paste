@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-//we want to avoid ambiguous characters like i, I, l, 1, etc
+// we want to avoid ambiguous characters like i, I, l, 1, etc
 const charset = "abcdefghkmnpqrstwxyzABCDEFGHJKLMNPQRSTWXYZ23456789"
 
 var seed rand.Source
