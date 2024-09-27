@@ -54,6 +54,3 @@ For maximum security, it is recommended to encrypt your file before uploading
 
 # Contribution 🤝
 The core features are complete & there will be no new major feature unless it's a really good idea. Any changes to the project will either be minor improvements or bugfix.
-
-# Donate ❤️
-BTC Network: bc1qpcx3r7pa0uyc957lt84duqexqmvupceyzvyxh6
