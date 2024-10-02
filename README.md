@@ -1,5 +1,5 @@
 # GigaPaste
-File sharing, url shortener and pastebin all in one place.  
+Go File sharing, url shortener and pastebin all in one place.  
 <ins>**Please star this project if you find it useful, thank you!**</ins>
 
 | ![](https://github.com/user-attachments/assets/d75999e5-736a-4ef4-80e8-c9a77079ed45) | ![](https://github.com/user-attachments/assets/80bab1ca-0685-4939-a999-8392d7c1bc8b) |
