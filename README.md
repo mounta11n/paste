@@ -9,6 +9,7 @@ File sharing, url shortener and pastebin all in one place with QR code and curl 
 
 # Why it's better than other similar apps :zap:
 - works in mobile browsers, can upload file / text with ctrl+v, drag and drop, browse file or through terminal
+- Support password authentication
 - Extremely easy to set up, all you need is `go build .` or use the docker-compose.yaml and it's done
 - Very easy for modificiations, don't like the style? pick a .css file from [here](https://github.com/dbohdan/classless-css) and replace the `static/theme.css`, don't like the layout? the html page is well commented and structured
 - Can run on any OS or deployment platforms like repl.it, render, fly.io, etc
