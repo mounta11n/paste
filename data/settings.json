@@ -6,5 +6,8 @@
 
 	"pbkdf2Iterations": 10000,
 	
-	"cmdUploadDefaultDurationMinute" : 10
+	"cmdUploadDefaultDurationMinute" : 10,
+	
+	"enablePassword" : false,
+	"password" : "password"
 }

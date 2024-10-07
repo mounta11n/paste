@@ -36,7 +36,13 @@ let convertMinutes = {
 	"years": 525960
 }
 	
-window.onload = ()=>{
+window.onbeforeunload = () => {
+
+	fetch('/deleteSession', {method: 'POST'})
+
+}
+
+window.onload = () => {
 	
 	//elements in main page
 	fileInput = document.getElementById('fileInput');
@@ -94,13 +100,13 @@ window.onload = ()=>{
 		}
 	})
 
-	textarea.addEventListener('paste', (event) => {
+	textArea.addEventListener('paste', (event) => {
 
 		event.preventDefault();
 		const pasteData = (event.clipboardData || window.clipboardData).getData('text');
 
-		textarea.value = textArea.value + pasteData;
-		textarea.selectionStart = textarea.selectionEnd = textarea.selectionStart + pasteData.length;
+		textArea.value = textArea.value + pasteData;
+		textArea.selectionStart = textArea.selectionEnd = textArea.selectionStart + pasteData.length;
 
 	});
 	

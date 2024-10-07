@@ -33,12 +33,6 @@ var templateFiles embed.FS
 
 func FileHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
-	err := r.ParseMultipartForm(1024 * Global.StreamSizeLimit) //Limit memory usage (this is not limiting file size)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
 	// Retrieve data from the form
 	var duration string
 	var password string

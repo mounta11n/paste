@@ -61,6 +61,7 @@ func serveFile(w http.ResponseWriter, r *http.Request, next func(w2 http.Respons
 	w.Header().Set("Content-Length", strconv.Itoa(len(file)))
 	w.WriteHeader(http.StatusOK)
 	w.Write(file)
+
 }
 
 func main() {
@@ -93,6 +94,12 @@ func main() {
 
 		if r.Method == http.MethodGet {
 
+			if (r.URL.Path == "/" || r.URL.Path == "/index.html") && !ValidateSession(w, r) {
+
+				http.Redirect(w, r, "/auth.html", http.StatusFound)
+				return
+			}
+
 			serveFile(w, r, func(w2 http.ResponseWriter, r2 *http.Request) {
 
 				DownloadHandler(w2, r2, db)
@@ -101,13 +108,54 @@ func main() {
 
 		}
 
+		//Post files
 		if r.Method == http.MethodPost {
 
-			r.Body = http.MaxBytesReader(w, r.Body, 1024*1024*Global.FileSizeLimit)
+			r.Body = http.MaxBytesReader(w, r.Body, 1024*1024*Global.FileSizeLimit) //Limit file size
+			err := r.ParseMultipartForm(1024 * Global.StreamSizeLimit) //Limit memory usage
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			//if password is not enabled, pass will always be true and it skips all the validation
+			pass := !Global.EnablePassword;
+			if !ValidateSession(w, r) {
+					
+				if len(r.MultipartForm.Value["auth"]) > 0 {
+						
+					auth := r.MultipartForm.Value["auth"][0]
+					if(auth == Global.Password) {
+
+						pass = true;
+
+					}
+
+				}
+
+			}
+
+			if !pass {
+				
+				// Before the multipart form is parsed, it will be written to a temporary folder, make sure to clean it after we are done
+				if r.MultipartForm != nil {
+
+					err := r.MultipartForm.RemoveAll()
+					if err != nil {
+						fmt.Println(err)
+					}
+
+				}
+
+				return;
+			
+			}
+
 			FileHandler(w, r, db)
 
 			// Before the multipart form is parsed, it will be written to a temporary folder, make sure to clean it after we are done
 			if r.MultipartForm != nil {
+
 				err := r.MultipartForm.RemoveAll()
 				if err != nil {
 					fmt.Println(err)
@@ -121,8 +169,36 @@ func main() {
 
 	http.HandleFunc("/postText", func(w http.ResponseWriter, r *http.Request) {
 
-		r.Body = http.MaxBytesReader(w, r.Body, 1024*1024*Global.TextSizeLimit)
-		TextHandler(w, r, db)
+		if r.Method == http.MethodPost {
+
+			if !ValidateSession(w, r) {
+				return
+			}
+
+			r.Body = http.MaxBytesReader(w, r.Body, 1024*1024*Global.TextSizeLimit) //Limit text size
+			TextHandler(w, r, db)
+
+		}
+
+	})
+
+	http.HandleFunc("/auth", func(w http.ResponseWriter, r *http.Request) {
+
+		if r.Method == http.MethodPost {
+
+			AuthHandler(w, r)
+
+		}
+
+	})
+
+	http.HandleFunc("/deleteSession", func(w http.ResponseWriter, r *http.Request) {
+
+		if r.Method == http.MethodPost {
+
+			DeleteSession(w, r)
+
+		}
 
 	})
 

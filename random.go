@@ -34,7 +34,7 @@ func init() {
 func GenRandFileName(basePath string, extension string) string {
 
 	for {
-		fileName := strconv.FormatInt(time.Now().UnixMilli(), 10) + GenRandString(5) + extension
+		fileName := strconv.FormatInt(time.Now().UnixMilli(), 10) + genRandString(5) + extension
 		filePath := basePath + fileName
 
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
@@ -47,7 +47,7 @@ func GenRandPath(length int, db *sql.DB) string {
 
 	for {
 
-		randPath := GenRandString(6)
+		randPath := genRandString(6)
 		var id string
 
 		db.QueryRow("SELECT id FROM data WHERE id = ?", randPath).Scan(&id)
@@ -60,8 +60,7 @@ func GenRandPath(length int, db *sql.DB) string {
 
 }
 
-// Function to generate a random string
-func GenRandString(length int) string {
+func genRandString(length int) string {
 	result := make([]byte, length)
 	for i := range result {
 		result[i] = charset[random.Intn(len(charset))]
