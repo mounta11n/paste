@@ -45,7 +45,7 @@ You can modify the variables inside `data/settings.json`
 - `enablePassword` = whether to enable password or not for site authentication
 - `password` = password value for site authentication, use a long password to deter attacks or use an external authentication server 
 
-You can modify CPU/memory usage by calculating the memory usage / sec with `streamSizeLimitKB * (1000/streamThrottleMS)`, the default setting can handle 40 MB of data/second on file upload, download, encryption & decryption / second, you can tune this down if needed
+You can modify CPU/memory usage by calculating the memory usage / sec with `streamSizeLimitKB * (1000/streamThrottleMS)`, the default setting can handle 40 MB of data/second on file upload, download, encryption & decryption, you can tune this down if needed
 
 # Curl upload ⬆️
 example: `curl -F file=@main.go -F duration=10 -F pass=123 -F burn=true https://yoursite.com`  
