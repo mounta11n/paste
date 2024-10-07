@@ -43,7 +43,7 @@ You can modify the variables inside `data/settings.json`
 - `pbkdf2Iterations` = key derivation algorithm iteration, the higher the better, but 100000 should be enough
 - `cmdUploadDefaultDurationMinute` = default file duration if you upload file through curl if duration is not specified
 - `enablePassword` = whether to enable password or not for site authentication
-- `password` = password value for site authentication
+- `password` = password value for site authentication, use a long password to deter attacks or utilize external authorization server 
 
 You can modify CPU/memory usage by calculating the memory usage / sec with `streamSizeLimitKB * (1000/streamThrottleMS)`, the default setting can handle 40 MB of data/second on file upload, download, encryption & decryption / second, you can tune this down if needed
 
