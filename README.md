@@ -12,8 +12,6 @@ File sharing, url shortener and pastebin all in one place with QR code and curl 
 - Extremely easy to set up, all you need is `go build .` or use the docker-compose.yaml and it's done
 - Very easy for modificiations, don't like the style? pick a .css file from [here](https://github.com/dbohdan/classless-css) and replace the `static/theme.css`, don't like the layout? the html page is well commented and structured
 - Can run on any OS or deployment platforms like repl.it, render, fly.io, etc
-- Designed to run efficiently on any system, regardless of its CPU or memory resources
-- Can handle gigabytes of file upload and download with fixed memory and cpu usage
 - Encryption done right, all your data can be secured with AES & pbkdf2 for passwords
 - Decryption is done on the fly, the encrypted data is never decrypted to the disk
 - Short & unambiguous URL generation (with letters like ilI1 omitted) with collision detection
