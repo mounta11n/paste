@@ -120,7 +120,6 @@ func DeleteSession(w http.ResponseWriter, r *http.Request) {
 
 	cookie, err := r.Cookie("session")
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 
