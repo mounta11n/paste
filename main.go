@@ -141,26 +141,23 @@ func main() {
 				return
 			}
 
-			//if password is not enabled, pass will always be true and it skips all the validation
-			pass := !Global.EnablePassword
+			//if session is not valid, the uploader might be uploading through terminal, in that case, we check for password
 			if !ValidateSession(w, r) {
 
 				if len(r.MultipartForm.Value["auth"]) > 0 {
 
 					auth := r.MultipartForm.Value["auth"][0]
-					if auth == Global.Password {
+					if auth != Global.Password {
 
-						pass = true
+						return
 
 					}
 
+				} else {
+
+					return
+
 				}
-
-			}
-
-			if !pass {
-
-				return
 
 			}
 
