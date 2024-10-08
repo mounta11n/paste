@@ -192,7 +192,6 @@ function upload() {
 			if (xhr.status === 200) {
 
 				uploadPercent.innerHTML = "100%";
-				console.log(xhr.responseText)
 				link.innerHTML = xhr.responseText; 
 				uploadInfo.style.display = "flex";
 
@@ -214,7 +213,7 @@ function upload() {
 
 		// Handle upload errors
 		xhr.addEventListener('error', function() {
-			console.log('Error during upload');
+			document.getElementById("uploadPercent").innerHTML = "Upload error";
 		});
 
 		// Handle aborts

@@ -46,6 +46,11 @@ You should have received a copy of the GNU General Public License along with Gig
 					window.location.href = "/"
 
 				}
+				if(data == "wrong"){
+
+					document.getElementById("wrong").innerHTML = "Wrong password";
+
+				}
 
 			});
 
@@ -63,6 +68,7 @@ You should have received a copy of the GNU General Public License along with Gig
 
 			<input id="key" name="key" type="password" placeholder="password" style="width: auto"></input>
 			<button onclick="submitClicked()" style="width: 100%">Submit</button>
+			<span id="wrong"></span>
 
 		</div>
 

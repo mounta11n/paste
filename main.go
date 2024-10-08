@@ -112,31 +112,10 @@ func main() {
 		if r.Method == http.MethodPost {
 
 			r.Body = http.MaxBytesReader(w, r.Body, 1024*1024*Global.FileSizeLimit) //Limit file size
-			err := r.ParseMultipartForm(1024 * Global.StreamSizeLimit) //Limit memory usage
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
+			err := r.ParseMultipartForm(1024 * Global.StreamSizeLimit)              //Limit memory usage
 
-			//if password is not enabled, pass will always be true and it skips all the validation
-			pass := !Global.EnablePassword;
-			if !ValidateSession(w, r) {
-					
-				if len(r.MultipartForm.Value["auth"]) > 0 {
-						
-					auth := r.MultipartForm.Value["auth"][0]
-					if(auth == Global.Password) {
+			defer func() {
 
-						pass = true;
-
-					}
-
-				}
-
-			}
-
-			if !pass {
-				
 				// Before the multipart form is parsed, it will be written to a temporary folder, make sure to clean it after we are done
 				if r.MultipartForm != nil {
 
@@ -147,21 +126,45 @@ func main() {
 
 				}
 
-				return;
-			
+			}()
+
+			if err != nil {
+
+				if err.Error() == "http: request body too large" {
+
+					//Can't seem to get this to work
+					http.Error(w, "SizeExceeded", http.StatusInternalServerError)
+					return
+
+				}
+				fmt.Println(err)
+				return
 			}
 
-			FileHandler(w, r, db)
+			//if password is not enabled, pass will always be true and it skips all the validation
+			pass := !Global.EnablePassword
+			if !ValidateSession(w, r) {
 
-			// Before the multipart form is parsed, it will be written to a temporary folder, make sure to clean it after we are done
-			if r.MultipartForm != nil {
+				if len(r.MultipartForm.Value["auth"]) > 0 {
 
-				err := r.MultipartForm.RemoveAll()
-				if err != nil {
-					fmt.Println(err)
+					auth := r.MultipartForm.Value["auth"][0]
+					if auth == Global.Password {
+
+						pass = true
+
+					}
+
 				}
 
 			}
+
+			if !pass {
+
+				return
+
+			}
+
+			FileHandler(w, r, db)
 
 		}
 

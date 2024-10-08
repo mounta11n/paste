@@ -22,10 +22,8 @@ import (
 )
 
 type Session struct {
-
 	Timer         *time.Timer
 	SessionString string
-
 }
 
 var Sessions []Session = []Session{}
@@ -83,6 +81,13 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 		}
 
+	} else {
+
+		_, err = io.WriteString(w, "wrong")
+		if err != nil {
+			fmt.Println(err)
+		}
+
 	}
 
 }
@@ -90,7 +95,7 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 func ValidateSession(w http.ResponseWriter, r *http.Request) bool {
 
 	if !Global.EnablePassword {
-		
+
 		return true
 
 	}
