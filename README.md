@@ -55,4 +55,4 @@ Note that the duration, password, and burn is totally optional, you can just wri
 For maximum security, it is recommended to encrypt your file before uploading
 
 # Contribution 🤝
-The core features are complete & there will be no new major feature unless it's a really good idea. Any changes to the project will either be minor improvements or bugfix.
+Feel free to open an issue if you have a feature idea / send me a PR.
